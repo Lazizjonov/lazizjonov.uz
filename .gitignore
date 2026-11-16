@@ -1,0 +1,28 @@
+# Credentials and local settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+.npmrc
+.netrc
+credentials*
+secrets*
+.aws/
+.ssh/
+.openai/
+.codex/
+.agents/
+# Dependencies, editor files, and temporary output
+node_modules/
+.idea/
+.vscode/
+*.log
+*.tmp
+*.zip
+*.tar.gz
+.DS_Store
+Thumbs.db
+# dist/ is the actual buildless website source and MUST be tracked.
