@@ -59,7 +59,7 @@ th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-a
 td.r,th.r{text-align:right;white-space:nowrap}
 .saved{max-width:1240px;margin:0 auto}
 #repwrap{position:fixed;left:-10000px;top:0}
-#rep{width:794px;background:#fff;color:#111;font:12px/1.4 Inter,Arial,sans-serif;padding:28px 34px}
+#rep{width:748px;background:#fff;color:#111;font:12px/1.4 Inter,Arial,sans-serif;padding:18px 20px}
 #rep h3{font:700 17px Manrope,Arial,sans-serif;text-align:center;margin:0 0 4px}
 #rep .c{text-align:center;margin:0 0 14px;color:#333}
 #rep table{font-size:11px;margin:6px 0 12px;border:1px solid #999}
@@ -255,7 +255,7 @@ async function makePdf(r){
  const el=$("rep");el.innerHTML=report(r);
  const name=("Bartel-Lauton_"+(r.fio||"baholash")+"_"+(r.dt||"")).replace(/[\\/:*?"<>|]+/g,"").replace(/\s+/g,"_")+".pdf";
  toast("PDF тайёрланмоқда…");
- try{await html2pdf().set({margin:[8,6,8,6],filename:name,image:{type:"jpeg",quality:0.95},html2canvas:{scale:2,backgroundColor:"#fff",scrollX:0,scrollY:0,windowWidth:900},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"]}}).from(el).save();toast("PDF юкланди")}
+ try{await html2pdf().set({margin:[8,6,8,6],filename:name,image:{type:"jpeg",quality:0.95},html2canvas:{scale:2,backgroundColor:"#fff",scrollX:0,scrollY:0},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"]}}).from(el).save();toast("PDF юкланди")}
  catch(e){toast("PDF яратишда хатолик")}
  finally{el.innerHTML=""}
 }
