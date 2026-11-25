@@ -252,13 +252,18 @@ function report(r){
 }
 async function makePdf(r){
  if(!window.html2pdf){toast("PDF кутубхонаси юкланмади, интернетни текширинг");return}
- const el=$("rep");el.innerHTML=report(r);el.style.width="748px";
- // fit one A4 page: printable 198×281 mm → 748 px wide ≈ 1060 px tall
- const MAXH=1050;
- for(let i=0;i<4;i++){const w=parseFloat(el.style.width),h=el.offsetHeight;const ratio=h/w,maxRatio=MAXH/748;if(ratio<=maxRatio)break;el.style.width=Math.ceil(w*Math.sqrt(ratio/maxRatio)*1.02)+"px"}
+ const el=$("rep");el.innerHTML=report(r);
  const name=("Bartel-Lauton_"+(r.fio||"baholash")+"_"+(r.dt||"")).replace(/[\\/:*?"<>|]+/g,"").replace(/\s+/g,"_")+".pdf";
  toast("PDF тайёрланмоқда…");
- try{await html2pdf().set({margin:[8,6,8,6],filename:name,image:{type:"jpeg",quality:0.95},html2canvas:{scale:2,backgroundColor:"#fff",scrollX:0,scrollY:0},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["legacy"]}}).from(el).save();toast("PDF юкланди")}
+ try{
+  const canvas=await html2pdf().set({html2canvas:{scale:2,backgroundColor:"#fff",scrollX:0,scrollY:0}}).from(el).toCanvas().get("canvas");
+  const blank=document.createElement("div");blank.style.cssText="width:10px;height:10px;background:#fff";
+  const pdf=await html2pdf().set({margin:0,jsPDF:{unit:"mm",format:"a4",orientation:"portrait"}}).from(blank).toPdf().get("pdf");
+  // one A4 page: 6 mm side margins, 8 mm top/bottom; shrink whole report if taller
+  const MW=198,MH=281;let w=MW,h=canvas.height*w/canvas.width;if(h>MH){h=MH;w=canvas.width*h/canvas.height}
+  pdf.addImage(canvas.toDataURL("image/jpeg",0.95),"JPEG",(210-w)/2,8,w,h);
+  pdf.save(name);toast("PDF юкланди");
+ }
  catch(e){toast("PDF яратишда хатолик")}
  finally{el.innerHTML="";el.style.width=""}
 }
