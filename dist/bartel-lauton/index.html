@@ -58,7 +58,8 @@ table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
 td.r,th.r{text-align:right;white-space:nowrap}
 .saved{max-width:1240px;margin:0 auto}
-#rep{position:fixed;left:-10000px;top:0;width:794px;background:#fff;color:#111;font:12px/1.4 Inter,Arial,sans-serif;padding:28px 34px}
+#repwrap{position:fixed;left:-10000px;top:0}
+#rep{width:794px;background:#fff;color:#111;font:12px/1.4 Inter,Arial,sans-serif;padding:28px 34px}
 #rep h3{font:700 17px Manrope,Arial,sans-serif;text-align:center;margin:0 0 4px}
 #rep .c{text-align:center;margin:0 0 14px;color:#333}
 #rep table{font-size:11px;margin:6px 0 12px;border:1px solid #999}
@@ -132,7 +133,7 @@ td.r,th.r{text-align:right;white-space:nowrap}
   </div>
 </section>
 <div class="toast" id="toast"></div>
-<div id="rep" aria-hidden="true"></div>
+<div id="repwrap" aria-hidden="true"><div id="rep"></div></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
