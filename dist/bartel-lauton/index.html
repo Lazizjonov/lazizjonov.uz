@@ -119,7 +119,7 @@ td.r,th.r{text-align:right;white-space:nowrap}
         </div>
         <div class="legend" id="legend"></div>
       </div>
-      <p class="note">Тоифа Бартел ва Лаутон балларини жамлаш орқали аниқланади. Ташрифлар сони ва давомийлигини қарор иловасидаги жадвал билан солиштириб олинг.</p>
+      <p class="note">Тоифа Бартел ва Лаутон балларини жамлаш орқали аниқланади.</p>
     </aside>
   </div>
 </main>
@@ -195,7 +195,7 @@ function calc(){
  $("mark").style.left=`calc(${Math.min(t,127)/127*100}% - 2px)`;
  const cat=$("cat");
  if(miss){cat.className="cat pending";cat.textContent="Барча бандларни белгиланг";$("visit").textContent="";$("warn").textContent=`Белгиланмаган бандлар: ${miss} та`}
- else{const c=catOf(t);cat.className="cat";cat.innerHTML=`<span style="color:${c.c}">●</span> ${c.n}`;$("visit").textContent=c.d?`Ижтимоий ходим ташрифи: ҳафтада ${c.d} кун, ${fmt(c.h)} соатдан`:"Уйда ижтимоий хизмат кўрсатиш талаб этилмайди";$("warn").textContent=""}
+ else{const c=catOf(t);cat.className="cat";cat.innerHTML=`<span style="color:${c.c}">●</span> ${c.n}`;$("warn").textContent=""}
  return{sb,sl,t,miss,b,l};
 }
 document.addEventListener("change",e=>{if(e.target.tagName==="SELECT")calc()});
@@ -246,8 +246,7 @@ function report(r){
  <h4>4.1. Элементар ҳаракатлар — Бартел шкаласи</h4><table>${head}${rows(B,r.b,"")}<tr><td></td><td colspan="2"><b>Жами</b></td><td style="text-align:right"><b>${fmt(r.sb)}</b></td></tr></table>
  <h4>4.2. Мураккаб ҳаракатлар — Лаутон шкаласи</h4><table>${head}${rows(L,r.l,"")}<tr><td></td><td colspan="2"><b>Жами</b></td><td style="text-align:right"><b>${fmt(r.sl)}</b></td></tr></table>
  <div class="tot"><div>Бартел<b>${fmt(r.sb)} / 100</b></div><div>Лаутон<b>${fmt(r.sl)} / 27</b></div><div>Жами балл<b>${fmt(r.t)} / 127</b></div></div>
- <table><tr><td style="width:170px">Боғлиқлик тоифаси</td><td><b>${esc(c.n)}</b></td></tr>
- <tr><td>Ижтимоий хизмат</td><td>${c.d?`Ҳафтада ${c.d} кун, ${fmt(c.h)} соатдан ташриф`:"Уйда ижтимоий хизмат талаб этилмайди"}</td></tr></table>
+ <table><tr><td style="width:170px">Боғлиқлик тоифаси</td><td><b>${esc(c.n)}</b></td></tr></table>
  <div class="sig"><div>Баҳоловчи: ____________________ ${esc(r.ev)}</div><div>Баҳоланувчи (ёки вакили): ____________________</div></div>`;
 }
 async function makePdf(r){
