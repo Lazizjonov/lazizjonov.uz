@@ -58,6 +58,18 @@ table{width:100%;border-collapse:collapse;font-size:14px}
 th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
 td.r,th.r{text-align:right;white-space:nowrap}
 .saved{max-width:1240px;margin:0 auto}
+#rep{position:fixed;left:-10000px;top:0;width:794px;background:#fff;color:#111;font:12px/1.4 Inter,Arial,sans-serif;padding:28px 34px}
+#rep h3{font:700 17px Manrope,Arial,sans-serif;text-align:center;margin:0 0 4px}
+#rep .c{text-align:center;margin:0 0 14px;color:#333}
+#rep table{font-size:11px;margin:6px 0 12px;border:1px solid #999}
+#rep th,#rep td{border:1px solid #999;padding:4px 6px;color:#111}
+#rep th{background:#eef5fa}
+#rep h4{font:700 13px Manrope,Arial,sans-serif;margin:10px 0 2px}
+#rep .tot{display:flex;gap:10px;margin:8px 0}
+#rep .tot div{flex:1;border:1px solid #999;padding:6px 8px}
+#rep .tot b{font:700 18px Manrope,Arial,sans-serif;display:block}
+#rep .sig{display:flex;justify-content:space-between;margin-top:26px}
+#rep tr{page-break-inside:avoid}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:8px;opacity:0;transition:opacity .25s;pointer-events:none}
 .toast.on{opacity:1}
 @media(max-width:900px){.wrap{grid-template-columns:minmax(0,1fr)}.side{position:static;order:-1}}
@@ -101,6 +113,7 @@ td.r,th.r{text-align:right;white-space:nowrap}
         <div class="warn" id="warn"></div>
         <div class="btns">
           <button class="main" id="save">Сақлаш</button>
+          <button id="pdf">PDF юклаб олиш</button>
           <button id="clear">Янги баҳолаш</button>
         </div>
         <div class="legend" id="legend"></div>
@@ -119,6 +132,8 @@ td.r,th.r{text-align:right;white-space:nowrap}
   </div>
 </section>
 <div class="toast" id="toast"></div>
+<div id="rep" aria-hidden="true"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script>
 {
@@ -190,7 +205,7 @@ function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");setTi
 let editId=null;
 function list(){
  if(!store.length){$("list").innerHTML=`<p class="sub">Ҳали ҳеч ким сақланмаган.</p>`;return}
- $("list").innerHTML=`<table class="stack"><thead><tr><th>Ф.И.Ш.</th><th>Сана</th><th>Баҳоловчи</th><th class="r">Бартел</th><th class="r">Лаутон</th><th class="r">Жами</th><th>Тоифа</th><th></th></tr></thead><tbody>${store.map(r=>`<tr><td><a href="#" data-open="${esc(r.id)}">${esc(r.fio||"Номсиз")}</a></td><td>${esc(r.dt)}</td><td>${esc(r.ev)}</td><td class="r">${fmt(r.sb)}</td><td class="r">${fmt(r.sl)}</td><td class="r"><b>${fmt(r.t)}</b></td><td>${esc(catOf(r.t).n)}</td><td><button data-del="${esc(r.id)}" aria-label="Ўчириш">Ўчириш</button></td></tr>`).join("")}</tbody></table>`;
+ $("list").innerHTML=`<table class="stack"><thead><tr><th>Ф.И.Ш.</th><th>Сана</th><th>Баҳоловчи</th><th class="r">Бартел</th><th class="r">Лаутон</th><th class="r">Жами</th><th>Тоифа</th><th></th></tr></thead><tbody>${store.map(r=>`<tr><td><a href="#" data-open="${esc(r.id)}">${esc(r.fio||"Номсиз")}</a></td><td>${esc(r.dt)}</td><td>${esc(r.ev)}</td><td class="r">${fmt(r.sb)}</td><td class="r">${fmt(r.sl)}</td><td class="r"><b>${fmt(r.t)}</b></td><td>${esc(catOf(r.t).n)}</td><td style="white-space:nowrap"><button data-pdf="${esc(r.id)}">PDF</button> <button data-del="${esc(r.id)}" aria-label="Ўчириш">Ўчириш</button></td></tr>`).join("")}</tbody></table>`;
 }
 const F=["fio","bd","adr","ev","dt"];
 function clearForm(){F.forEach(f=>$(f).value="");$("dt").value=new Date().toISOString().slice(0,10);document.querySelectorAll("select").forEach(s=>s.value="");editId=null;calc()}
@@ -216,6 +231,40 @@ $("csv").addEventListener("click",async()=>{
  try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["﻿"+txt],{type:"text/csv;charset=utf-8"}));a.download="bartel-lauton.csv";document.body.appendChild(a);a.click();a.remove()}catch(e){}
  try{await navigator.clipboard.writeText(txt);toast("Файл юкланди ва нусха олинди")}catch(e){toast("Файл юкланди")}
 });
+const optTxt=(set,i,v)=>{const o=set[i][1].find(o=>String(o[0])===String(v));return o?o[1]:""};
+const fdate=d=>d?d.split("-").reverse().join("."):"";
+function report(r){
+ const c=catOf(r.t);
+ const rows=(set,vals,pre)=>set.map((it,i)=>`<tr><td style="text-align:center">${pre}${i+1}</td><td>${esc(it[0])}</td><td>${esc(optTxt(set,i,vals[i]))}</td><td style="text-align:right"><b>${fmt(+vals[i])}</b></td></tr>`).join("");
+ const head=`<tr><th style="width:36px">№</th><th style="width:190px">Ҳаракат</th><th>Ҳолат</th><th style="width:44px">Балл</th></tr>`;
+ return `<h3>Ўзгалар ёрдамига боғлиқлик даражасини баҳолаш баённомаси</h3>
+ <p class="c">Бартел ва Лаутон шкалалари бўйича (ВМнинг 11.03.2024 йилдаги 123-сон қарори)</p>
+ <table><tr><td style="width:170px">Баҳоланувчи Ф.И.Ш.</td><td><b>${esc(r.fio)}</b></td></tr>
+ <tr><td>Туғилган сана</td><td>${esc(fdate(r.bd))}</td></tr><tr><td>Манзил / маҳалла</td><td>${esc(r.adr)}</td></tr>
+ <tr><td>Баҳоловчи</td><td>${esc(r.ev)}</td></tr><tr><td>Баҳолаш санаси</td><td>${esc(fdate(r.dt))}</td></tr></table>
+ <h4>4.1. Элементар ҳаракатлар — Бартел шкаласи</h4><table>${head}${rows(B,r.b,"")}<tr><td></td><td colspan="2"><b>Жами</b></td><td style="text-align:right"><b>${fmt(r.sb)}</b></td></tr></table>
+ <h4>4.2. Мураккаб ҳаракатлар — Лаутон шкаласи</h4><table>${head}${rows(L,r.l,"")}<tr><td></td><td colspan="2"><b>Жами</b></td><td style="text-align:right"><b>${fmt(r.sl)}</b></td></tr></table>
+ <div class="tot"><div>Бартел<b>${fmt(r.sb)} / 100</b></div><div>Лаутон<b>${fmt(r.sl)} / 27</b></div><div>Жами балл<b>${fmt(r.t)} / 127</b></div></div>
+ <table><tr><td style="width:170px">Боғлиқлик тоифаси</td><td><b>${esc(c.n)}</b></td></tr>
+ <tr><td>Ижтимоий хизмат</td><td>${c.d?`Ҳафтада ${c.d} кун, ${fmt(c.h)} соатдан ташриф`:"Уйда ижтимоий хизмат талаб этилмайди"}</td></tr></table>
+ <div class="sig"><div>Баҳоловчи: ____________________ ${esc(r.ev)}</div><div>Баҳоланувчи (ёки вакили): ____________________</div></div>`;
+}
+async function makePdf(r){
+ if(!window.html2pdf){toast("PDF кутубхонаси юкланмади, интернетни текширинг");return}
+ const el=$("rep");el.innerHTML=report(r);
+ const name=("Bartel-Lauton_"+(r.fio||"baholash")+"_"+(r.dt||"")).replace(/[\\/:*?"<>|]+/g,"").replace(/\s+/g,"_")+".pdf";
+ toast("PDF тайёрланмоқда…");
+ try{await html2pdf().set({margin:[8,6,8,6],filename:name,image:{type:"jpeg",quality:0.95},html2canvas:{scale:2,backgroundColor:"#fff",scrollX:0,scrollY:0,windowWidth:900},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"]}}).from(el).save();toast("PDF юкланди")}
+ catch(e){toast("PDF яратишда хатолик")}
+ finally{el.innerHTML=""}
+}
+$("pdf").addEventListener("click",()=>{
+ const r=calc();
+ if(r.miss){toast(`${r.miss} та банд белгиланмаган`);return}
+ const rec={sb:r.sb,sl:r.sl,t:r.t,b:r.b,l:r.l};F.forEach(f=>rec[f]=$(f).value.trim());
+ makePdf(rec);
+});
+$("list").addEventListener("click",e=>{const p=e.target.closest("[data-pdf]");if(p){const r=store.find(x=>x.id===p.dataset.pdf);if(r)makePdf(r)}});
 clearForm();list();
 }
 </script>
