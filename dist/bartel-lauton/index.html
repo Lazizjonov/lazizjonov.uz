@@ -69,7 +69,7 @@ td.r,th.r{text-align:right;white-space:nowrap}
 #rep .tot{display:flex;gap:10px;margin:8px 0}
 #rep .tot div{flex:1;border:1px solid #999;padding:6px 8px}
 #rep .tot b{font:700 18px Manrope,Arial,sans-serif;display:block}
-#rep .sig{display:flex;justify-content:space-between;padding-top:26px;page-break-inside:avoid}
+#rep .sig{display:flex;justify-content:space-between;padding-top:22px}
 #rep tr{page-break-inside:avoid}
 .toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:8px;opacity:0;transition:opacity .25s;pointer-events:none}
 .toast.on{opacity:1}
@@ -252,12 +252,15 @@ function report(r){
 }
 async function makePdf(r){
  if(!window.html2pdf){toast("PDF кутубхонаси юкланмади, интернетни текширинг");return}
- const el=$("rep");el.innerHTML=report(r);
+ const el=$("rep");el.innerHTML=report(r);el.style.width="748px";
+ // fit one A4 page: printable 198×281 mm → 748 px wide ≈ 1060 px tall
+ const MAXH=1050;
+ for(let i=0;i<4;i++){const w=parseFloat(el.style.width),h=el.offsetHeight;const ratio=h/w,maxRatio=MAXH/748;if(ratio<=maxRatio)break;el.style.width=Math.ceil(w*Math.sqrt(ratio/maxRatio)*1.02)+"px"}
  const name=("Bartel-Lauton_"+(r.fio||"baholash")+"_"+(r.dt||"")).replace(/[\\/:*?"<>|]+/g,"").replace(/\s+/g,"_")+".pdf";
  toast("PDF тайёрланмоқда…");
- try{await html2pdf().set({margin:[8,6,8,6],filename:name,image:{type:"jpeg",quality:0.95},html2canvas:{scale:2,backgroundColor:"#fff",scrollX:0,scrollY:0},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["css","legacy"],avoid:["tr",".sig",".tot","h4","h3",".c"]}}).from(el).save();toast("PDF юкланди")}
+ try{await html2pdf().set({margin:[8,6,8,6],filename:name,image:{type:"jpeg",quality:0.95},html2canvas:{scale:2,backgroundColor:"#fff",scrollX:0,scrollY:0},jsPDF:{unit:"mm",format:"a4",orientation:"portrait"},pagebreak:{mode:["legacy"]}}).from(el).save();toast("PDF юкланди")}
  catch(e){toast("PDF яратишда хатолик")}
- finally{el.innerHTML=""}
+ finally{el.innerHTML="";el.style.width=""}
 }
 $("pdf").addEventListener("click",()=>{
  const r=calc();
