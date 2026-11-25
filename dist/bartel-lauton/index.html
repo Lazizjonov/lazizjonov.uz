@@ -5,18 +5,18 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Бартел ва Лаутон баҳолаш</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 /* VOICE: calm clinical work tool for social workers, clear and fast
    IDEA: the paper assessment form (Илова, 4.1–4.2 бўлим) turned live
    PICTURE: big running total + category gauge beside the questions
-   COLOUR and TYPE: sky field, white, deep ink, orange for the verdict; Outfit + Inter
+   COLOUR and TYPE: sky field, white, deep ink, orange for the verdict; Manrope + Inter
    LAYOUT: band with person data, two-column form + sticky result, saved list below */
 :root{color-scheme:light dark;--bg:light-dark(#fff,#0b1726);--ink:light-dark(#10223a,#e7eef7);--mut:light-dark(#4e5f75,#9fb0c4);--sky:#4fb3e8;--sky2:light-dark(#e8f5fc,#13263b);--line:light-dark(#d5e3ee,#24384f);--acc:#ff7a1a;--card:light-dark(#fff,#0f1e31)}
 :root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
 *{box-sizing:border-box;min-width:0}
 body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
-h1,h2,h3,.num{font-family:Outfit,Inter,sans-serif}
+h1,h2,h3,.num{font-family:Manrope,Inter,sans-serif}
 .band{padding:clamp(20px,3.5vw,48px) max(5vw,16px)}
 .top{background:var(--sky);color:#10223a}
 .top h1{margin:0 0 4px;font-size:clamp(26px,4vw,40px);line-height:1.05;text-wrap:balance}
@@ -30,20 +30,20 @@ input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid 
 h2{font-size:22px;margin:8px 0 4px}
 .sub{color:var(--mut);margin:0 0 12px;font-size:14px}
 .q{display:grid;grid-template-columns:2.2em minmax(0,1fr) 3.4em;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
-.q .n{font-family:Outfit;font-weight:600;color:var(--mut)}
+.q .n{font-family:Manrope,sans-serif;font-weight:600;color:var(--mut)}
 .q .t{font-weight:600;font-size:15px;margin-bottom:4px}
-.q .p{font-family:Outfit;font-weight:700;font-size:20px;text-align:right;white-space:nowrap}
+.q .p{font-family:Manrope,sans-serif;font-weight:700;font-size:20px;text-align:right;white-space:nowrap}
 .q.empty select{border-color:var(--acc)}
 .side{position:sticky;top:16px;align-self:start}
 .res{background:var(--sky2);border-radius:14px;padding:20px}
 .big{font-size:clamp(56px,9vw,84px);font-weight:700;line-height:1}
 .big small{font-size:22px;color:var(--mut);font-weight:500}
 .split{display:flex;gap:18px;margin:10px 0 14px;font-size:14px}
-.split b{font-family:Outfit;font-size:20px;display:block}
+.split b{font-family:Manrope,sans-serif;font-size:20px;display:block}
 .gauge{display:flex;height:14px;border-radius:7px;overflow:hidden;position:relative;margin:18px 0 6px}
 .gauge span{height:100%}
 .mark{position:absolute;top:-6px;width:4px;height:26px;background:var(--ink);border-radius:2px;transition:left .3s}
-.cat{font-family:Outfit;font-size:22px;font-weight:600;margin:14px 0 4px;line-height:1.2}
+.cat{font-family:Manrope,sans-serif;font-size:22px;font-weight:600;margin:14px 0 4px;line-height:1.2}
 .cat.pending{color:var(--mut);font-size:17px}
 .visit{font-size:14px;color:var(--mut)}
 .warn{color:var(--acc);font-size:14px;font-weight:600;margin-top:8px}
