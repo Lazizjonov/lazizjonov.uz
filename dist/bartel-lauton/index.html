@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="uz-Cyrl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Бартел ва Лаутон баҳолаш</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* VOICE: calm clinical work tool for social workers, clear and fast
+   IDEA: the paper assessment form (Илова, 4.1–4.2 бўлим) turned live
+   PICTURE: big running total + category gauge beside the questions
+   COLOUR and TYPE: sky field, white, deep ink, orange for the verdict; Outfit + Inter
+   LAYOUT: band with person data, two-column form + sticky result, saved list below */
+:root{color-scheme:light dark;--bg:light-dark(#fff,#0b1726);--ink:light-dark(#10223a,#e7eef7);--mut:light-dark(#4e5f75,#9fb0c4);--sky:#4fb3e8;--sky2:light-dark(#e8f5fc,#13263b);--line:light-dark(#d5e3ee,#24384f);--acc:#ff7a1a;--card:light-dark(#fff,#0f1e31)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3,.num{font-family:Outfit,Inter,sans-serif}
+.band{padding:clamp(20px,3.5vw,48px) max(5vw,16px)}
+.top{background:var(--sky);color:#10223a}
+.top h1{margin:0 0 4px;font-size:clamp(26px,4vw,40px);line-height:1.05;text-wrap:balance}
+.top p{margin:0 0 18px;max-width:70ch}
+.who{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;max-width:1240px}
+label{display:block;font-size:13px;font-weight:600}
+input,select{width:100%;font:16px Inter,sans-serif;padding:10px 12px;min-height:44px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.top input{border-color:#2f8fc2;background:#fff;color:#10223a}
+input:focus-visible,select:focus-visible,button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.wrap{display:grid;grid-template-columns:minmax(0,1fr) 340px;gap:28px;max-width:1240px;margin:0 auto}
+h2{font-size:22px;margin:8px 0 4px}
+.sub{color:var(--mut);margin:0 0 12px;font-size:14px}
+.q{display:grid;grid-template-columns:2.2em minmax(0,1fr) 3.4em;gap:10px;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+.q .n{font-family:Outfit;font-weight:600;color:var(--mut)}
+.q .t{font-weight:600;font-size:15px;margin-bottom:4px}
+.q .p{font-family:Outfit;font-weight:700;font-size:20px;text-align:right;white-space:nowrap}
+.q.empty select{border-color:var(--acc)}
+.side{position:sticky;top:16px;align-self:start}
+.res{background:var(--sky2);border-radius:14px;padding:20px}
+.big{font-size:clamp(56px,9vw,84px);font-weight:700;line-height:1}
+.big small{font-size:22px;color:var(--mut);font-weight:500}
+.split{display:flex;gap:18px;margin:10px 0 14px;font-size:14px}
+.split b{font-family:Outfit;font-size:20px;display:block}
+.gauge{display:flex;height:14px;border-radius:7px;overflow:hidden;position:relative;margin:18px 0 6px}
+.gauge span{height:100%}
+.mark{position:absolute;top:-6px;width:4px;height:26px;background:var(--ink);border-radius:2px;transition:left .3s}
+.cat{font-family:Outfit;font-size:22px;font-weight:600;margin:14px 0 4px;line-height:1.2}
+.cat.pending{color:var(--mut);font-size:17px}
+.visit{font-size:14px;color:var(--mut)}
+.warn{color:var(--acc);font-size:14px;font-weight:600;margin-top:8px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+button{font:600 15px Inter,sans-serif;min-height:44px;padding:0 16px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+button.main{background:var(--acc);border-color:var(--acc);color:#fff}
+.legend{font-size:13px;margin-top:16px;display:grid;gap:4px}
+.legend div{display:flex;gap:8px;align-items:center}
+.legend i{width:12px;height:12px;border-radius:3px;flex:none}
+.note{font-size:13px;color:var(--mut);margin-top:12px}
+table{width:100%;border-collapse:collapse;font-size:14px}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+td.r,th.r{text-align:right;white-space:nowrap}
+.saved{max-width:1240px;margin:0 auto}
+.toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:8px;opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.on{opacity:1}
+@media(max-width:900px){.wrap{grid-template-columns:minmax(0,1fr)}.side{position:static;order:-1}}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--mut)}.stack td:empty{display:none}.q{grid-template-columns:minmax(0,1fr) 3em}.q .n{display:none}}
+@media(prefers-reduced-motion:reduce){.mark{transition:none}}
+</style><script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script></head>
+<body>
+<header class="band top">
+  <h1>Бартел ва Лаутон шкалалари бўйича баҳолаш</h1>
+  <p>Вазирлар Маҳкамасининг 11.03.2024 йилдаги 123-сон қарори асосида ўзгалар ёрдамига боғлиқлик даражасини аниқлаш.</p>
+  <div class="who">
+    <div><label for="fio">Баҳоланувчи Ф.И.Ш.</label><input id="fio" autocomplete="off"></div>
+    <div><label for="bd">Туғилган сана</label><input id="bd" type="date"></div>
+    <div><label for="adr">Манзил / маҳалла</label><input id="adr" autocomplete="off"></div>
+    <div><label for="ev">Баҳоловчи</label><input id="ev" autocomplete="off"></div>
+    <div><label for="dt">Баҳолаш санаси</label><input id="dt" type="date"></div>
+  </div>
+</header>
+
+<main class="band">
+  <div class="wrap">
+    <div>
+      <h2>4.1. Элементар ҳаракатлар — Бартел шкаласи</h2>
+      <p class="sub">10 банд, энг юқори 100 балл</p>
+      <div id="qb"></div>
+      <h2 style="margin-top:28px">4.2. Мураккаб ҳаракатлар — Лаутон шкаласи</h2>
+      <p class="sub">9 банд, ҳар бири 1 дан 3 баллгача, энг юқори 27 балл</p>
+      <div id="ql"></div>
+    </div>
+    <aside class="side">
+      <div class="res" aria-live="polite">
+        <div style="font-size:14px;font-weight:600">Жами балл</div>
+        <div class="big num"><span id="tot">0</span> <small>/ 127</small></div>
+        <div class="split">
+          <div>Бартел<b id="tb">0 / 100</b></div>
+          <div>Лаутон<b id="tl">0 / 27</b></div>
+        </div>
+        <div class="gauge" id="gauge"><div class="mark" id="mark" style="left:0"></div></div>
+        <div class="cat pending" id="cat">Барча бандларни белгиланг</div>
+        <div class="visit" id="visit"></div>
+        <div class="warn" id="warn"></div>
+        <div class="btns">
+          <button class="main" id="save">Сақлаш</button>
+          <button id="clear">Янги баҳолаш</button>
+        </div>
+        <div class="legend" id="legend"></div>
+      </div>
+      <p class="note">Тоифа Бартел ва Лаутон балларини жамлаш орқали аниқланади. Ташрифлар сони ва давомийлигини қарор иловасидаги жадвал билан солиштириб олинг.</p>
+    </aside>
+  </div>
+</main>
+
+<section class="band" style="border-top:1px solid var(--line)">
+  <div class="saved">
+    <h2>Баҳоланганлар рўйхати</h2>
+    <p class="sub">Шу қурилмадаги браузерда сақланади. Номни босиб, баҳолашни қайта очиш мумкин.</p>
+    <div class="btns" style="margin:0 0 12px"><button id="csv">Excel учун юклаб олиш (CSV)</button></div>
+    <div id="list"></div>
+  </div>
+</section>
+<div class="toast" id="toast"></div>
+
+<script>
+{
+const B=[
+ ["Овқатланиш",[[10,"Мустақил, тез"],[9,"Мустақил, лекин секин"],[8,"Мослаштирилган асбоблар ёрдамида мустақил"],[7,"Асбоблар билан, катта қийинчилик билан"],[6,"Еяди, лекин овқатни тайёрлаб бериш керак"],[5,"Кузатув ёки ~25% гача ёрдам керак"],[3,"Доимий назорат ёки 50% гача ёрдам"],[1,"Кўп ёрдам керак"],[0,"Ўзи овқатлана олмайди"]]],
+ ["Чўмилиш",[[5,"Мустақил, қийинчиликсиз"],[4,"Мустақил, қийинчилик билан"],[3,"Назорат ёки 25% гача ёрдам"],[2,"50% гача ёрдам"],[1,"Кўп ёрдам керак"],[0,"Фақат тўшакда ёрдам билан"]]],
+ ["Шахсий гигиена (ювиниш, сочни тараш, тиш, соқол)",[[5,"Мустақил"],[4,"Мустақил, қийинчилик билан"],[3,"Назорат ёки озгина ёрдам (25% гача)"],[2,"50% гача ёрдам"],[1,"Кўп ёрдам керак"],[0,"Мустақил бажара олмайди"]]],
+ ["Кийиниш ва пойабзал кийиш",[[10,"Мустақил, қийинчиликсиз"],[9,"Ёрдамчи воситалар билан мустақил"],[8,"Мустақил, лекин секин"],[7,"Воситалар билан, катта қийинчилик билан"],[5,"Назорат ёки озгина ёрдам (тугма, ип) — 25% гача"],[3,"50% гача ёрдам"],[1,"Кўп ёрдам керак"],[0,"Мустақил кийина олмайди"]]],
+ ["Ичак фаолиятини назорат қилиш",[[10,"Тўлиқ назорат"],[8,"Колостомани мустақил парвариш қилади"],[5,"Ҳафтада ~1 марта назоратни йўқотади ёки клизмада ёрдам керак"],[2,"Ҳафтада 2–3 марта назоратни йўқотади"],[1,"Ҳафтада 3 мартадан кўп"],[0,"Сурункали назоратсизлик, парваришчи ёрдами керак"]]],
+ ["Сийдик чиқаришни назорат қилиш",[[10,"Ёрдамсиз тўлиқ назорат"],[8,"Катетер/мосламаларни мустақил бошқаради"],[5,"Кунига камида 1 марта назоратни йўқотади"],[2,"Кунига 2–3 марта ёки қисман ёрдам"],[1,"Кунига 3 мартадан кўп, таглик ишлатади"],[0,"Сурункали назоратсизлик"]]],
+ ["Ҳожатхонадан фойдаланиш",[[10,"Мустақил, қийинчиликсиз"],[9,"Ёрдамчи воситалар билан мустақил"],[7,"Ёрдамсиз, катта қийинчилик билан (стул-ҳожатхона)"],[5,"Озгина ёрдам, мувозанатни сақлашда"],[3,"Сезиларли ёрдам керак"],[2,"Доимий ёрдам керак"],[0,"Тўшакда мосламалар билан"]]],
+ ["Тўшак/стулдан туриш (кўчиб ўтиш)",[[15,"Мустақил, қийинчиликсиз"],[12,"Ёрдамчи воситалар билан мустақил"],[10,"Назорат ёки озгина ёрдам"],[7,"Мустақил, лекин қийинчилик билан"],[5,"Ўзи ўтиради, туришга қисман ёрдам керак"],[3,"Ўтиради, туришга доимий ёрдам керак"],[1,"Фақат таянч билан ўтиради, доим ёрдам"],[0,"Ёрдам билан ҳам ўтира/тура олмайди"]]],
+ ["Ҳаракатланиш",[[15,"500 м дан ортиқ мустақил"],[14,"500 м дан ортиқ воситалар билан"],[11,"500 м дан ортиқ, секин, қийинчилик билан"],[10,"500 м гача ёрдам билан, уйда мустақил"],[5,"100 м гача мустақил ёки аравачада"],[3,"100 м гача воситалар билан, қийин"],[2,"100 м гача фақат ёрдам билан"],[0,"50 м дан ортиқ мустақил юра олмайди / ҳаракатланмайди"]]],
+ ["Зинапоядан чиқиш-тушиш",[[10,"Мустақил"],[9,"Ёрдамчи воситалар билан мустақил"],[7,"Мустақил, лекин узоқ вақт талаб қилади"],[5,"Озгина ёрдам ёки назорат"],[2,"Фақат ёрдам билан"],[0,"Ёрдам билан ҳам чиқа олмайди"]]]
+];
+const L=[
+ ["Телефондан фойдаланиш",[[3,"Мустақил"],[2.5,"Фақат махсус мослаштирилган телефон"],[2,"Озгина ёрдам / фақат таниш рақамлар"],[1.5,"Бошқа одам рақам терса гаплашади"],[1,"Фойдалана олмайди"]]],
+ ["Пиёда масофадан ташқарига бориш (транспорт)",[[3,"Мустақил, жамоат транспорти/такси"],[2.5,"Батафсил оғзаки йўриқномадан сўнг мустақил"],[2,"Озгина ёрдам билан"],[1.5,"Фақат доимий кузатувчи билан"],[1,"Бора олмайди"]]],
+ ["Харид қилиш",[[3,"Мустақил"],[2,"Озгина ёрдам билан"],[1.5,"Ёрдам ва кузатув билан"],[1,"Харид қила олмайди"]]],
+ ["Овқат тайёрлаш",[[3,"Мустақил"],[2.5,"Ярим тайёр маҳсулотлардан"],[2,"Озгина ёрдам билан"],[1.5,"Фақат иситади"],[1,"Тайёрлай олмайди"]]],
+ ["Уй-рўзғор ишлари",[[3,"Мустақил"],[2.5,"Енгил ишларни мустақил"],[2,"Озгина ёрдам билан"],[1.5,"Айрим ишларда ёрдам керак"],[1,"Бажара олмайди"]]],
+ ["Бўш вақт ва қўл меҳнати",[[3,"Мустақил ташкил қилади ва бажаради"],[2.5,"Бўш вақтни ташкил этади, айрим ишларни бажаради"],[2,"Озгина ёрдам билан"],[1,"Бажара олмайди"]]],
+ ["Кир ювиш",[[3,"Мустақил"],[2.5,"Фақат кир ювиш машинасида"],[2,"Ёйишда озгина ёрдам"],[1.5,"Сезиларли ёрдам керак"],[1,"Юва олмайди"]]],
+ ["Дори қабул қилиш",[[3,"Мустақил, тўғри доза ва вақтда"],[2,"Озгина ёрдам (дозани тайёрлаш, эслатиш)"],[1.5,"Мунтазам назорат билан"],[1,"Қабул қила олмайди"]]],
+ ["Шахсий молияни бошқариш",[[3,"Мустақил"],[2,"Озгина ёрдам билан"],[1.5,"Кундалик харажатлар, ойлик бюджет эмас"],[1,"Бошқара олмайди"]]]
+];
+const CAT=[
+ {min:116,n:"Уйда парваришга муҳтож эмас",c:"#3aa874",d:0,h:0},
+ {min:88,n:"Ўзгалар ёрдамига енгил боғлиқ",c:"#9cc94a",d:1,h:2},
+ {min:63,n:"Мўътадил боғлиқлик",c:"#f2c230",d:2,h:2.5},
+ {min:54,n:"Яққол боғлиқлик",c:"#ff7a1a",d:5,h:2},
+ {min:0,n:"Оғир боғлиқлик",c:"#d9363e",d:7,h:3}
+];
+const KEY="bartel123_v1";
+const $=id=>document.getElementById(id);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt=x=>String(Math.round(x*10)/10).replace(".",",");
+function render(set,host,pre){
+ host.innerHTML=set.map((it,i)=>`<div class="q empty" id="w${pre}${i}"><div class="n">${i+1}</div><div><div class="t">${it[0]}</div><select id="${pre}${i}" aria-label="${it[0]}"><option value="">— танланг —</option>${it[1].map(o=>`<option value="${o[0]}">${fmt(o[0])} — ${o[1]}</option>`).join("")}</select></div><div class="p num" id="p${pre}${i}">–</div></div>`).join("");
+}
+render(B,$("qb"),"b");render(L,$("ql"),"l");
+// gauge: 0..127
+const G=$("gauge"),bounds=[[0,53],[54,62],[63,87],[88,115],[116,127]];
+[...CAT].reverse().forEach((c,i)=>{const s=document.createElement("span");s.style.background=c.c;s.style.width=((bounds[i][1]-bounds[i][0]+1)/128*100)+"%";G.insertBefore(s,$("mark"))});
+$("legend").innerHTML=CAT.map((c,i)=>`<div><i style="background:${c.c}"></i>${c.min}${i?"–"+(CAT[i-1].min-1):"+"} — ${c.n}</div>`).join("");
+const catOf=t=>CAT.find(c=>t>=c.min);
+function vals(){
+ const b=B.map((_,i)=>$("b"+i).value),l=L.map((_,i)=>$("l"+i).value);
+ return{b,l};
+}
+function calc(){
+ const {b,l}=vals();
+ let sb=0,sl=0,miss=0;
+ b.forEach((v,i)=>{$("pb"+i).textContent=v===""?"–":fmt(+v);$("wb"+i).classList.toggle("empty",v==="");if(v==="")miss++;else sb+=+v});
+ l.forEach((v,i)=>{$("pl"+i).textContent=v===""?"–":fmt(+v);$("wl"+i).classList.toggle("empty",v==="");if(v==="")miss++;else sl+=+v});
+ const t=sb+sl;
+ $("tot").textContent=fmt(t);$("tb").textContent=fmt(sb)+" / 100";$("tl").textContent=fmt(sl)+" / 27";
+ $("mark").style.left=`calc(${Math.min(t,127)/127*100}% - 2px)`;
+ const cat=$("cat");
+ if(miss){cat.className="cat pending";cat.textContent="Барча бандларни белгиланг";$("visit").textContent="";$("warn").textContent=`Белгиланмаган бандлар: ${miss} та`}
+ else{const c=catOf(t);cat.className="cat";cat.innerHTML=`<span style="color:${c.c}">●</span> ${c.n}`;$("visit").textContent=c.d?`Ижтимоий ходим ташрифи: ҳафтада ${c.d} кун, ${fmt(c.h)} соатдан`:"Уйда ижтимоий хизмат кўрсатиш талаб этилмайди";$("warn").textContent=""}
+ return{sb,sl,t,miss,b,l};
+}
+document.addEventListener("change",e=>{if(e.target.tagName==="SELECT")calc()});
+let store=[];
+try{store=JSON.parse(localStorage.getItem(KEY)||"[]")}catch(e){store=[]}
+const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(store))}catch(e){toast("Браузер хотирасига сақлаб бўлмади")}};
+function toast(m){const t=$("toast");t.textContent=m;t.classList.add("on");setTimeout(()=>t.classList.remove("on"),2200)}
+let editId=null;
+function list(){
+ if(!store.length){$("list").innerHTML=`<p class="sub">Ҳали ҳеч ким сақланмаган.</p>`;return}
+ $("list").innerHTML=`<table class="stack"><thead><tr><th>Ф.И.Ш.</th><th>Сана</th><th>Баҳоловчи</th><th class="r">Бартел</th><th class="r">Лаутон</th><th class="r">Жами</th><th>Тоифа</th><th></th></tr></thead><tbody>${store.map(r=>`<tr><td><a href="#" data-open="${esc(r.id)}">${esc(r.fio||"Номсиз")}</a></td><td>${esc(r.dt)}</td><td>${esc(r.ev)}</td><td class="r">${fmt(r.sb)}</td><td class="r">${fmt(r.sl)}</td><td class="r"><b>${fmt(r.t)}</b></td><td>${esc(catOf(r.t).n)}</td><td><button data-del="${esc(r.id)}" aria-label="Ўчириш">Ўчириш</button></td></tr>`).join("")}</tbody></table>`;
+}
+const F=["fio","bd","adr","ev","dt"];
+function clearForm(){F.forEach(f=>$(f).value="");$("dt").value=new Date().toISOString().slice(0,10);document.querySelectorAll("select").forEach(s=>s.value="");editId=null;calc()}
+$("save").addEventListener("click",()=>{
+ const r=calc();
+ if(!$("fio").value.trim()){toast("Ф.И.Ш. ни киритинг");$("fio").focus();return}
+ if(r.miss){toast(`${r.miss} та банд белгиланмаган`);return}
+ const rec={id:editId||String(Date.now()),sb:r.sb,sl:r.sl,t:r.t,b:r.b,l:r.l};F.forEach(f=>rec[f]=$(f).value.trim());
+ const i=store.findIndex(x=>x.id===rec.id);if(i>=0)store[i]=rec;else store.unshift(rec);
+ persist();list();toast(`Сақланди: ${rec.fio} — ${fmt(rec.t)} балл`);editId=rec.id;
+});
+$("clear").addEventListener("click",()=>{clearForm();window.scrollTo({top:0})});
+$("list").addEventListener("click",e=>{
+ const o=e.target.closest("[data-open]"),d=e.target.closest("[data-del]");
+ if(o){e.preventDefault();const r=store.find(x=>x.id===o.dataset.open);if(!r)return;F.forEach(f=>$(f).value=r[f]||"");r.b.forEach((v,i)=>$("b"+i).value=v);r.l.forEach((v,i)=>$("l"+i).value=v);editId=r.id;calc();window.scrollTo({top:0});toast("Баҳолаш очилди")}
+ if(d){if(d.dataset.sure){store=store.filter(x=>x.id!==d.dataset.del);persist();list();toast("Ўчирилди")}else{d.dataset.sure="1";d.textContent="Ростданми?"}}
+});
+$("csv").addEventListener("click",async()=>{
+ const q=s=>`"${String(s??"").replace(/"/g,'""')}"`;
+ const head=["Ф.И.Ш.","Туғилган сана","Манзил","Баҳоловчи","Сана",...B.map(x=>"Б: "+x[0]),...L.map(x=>"Л: "+x[0]),"Бартел","Лаутон","Жами","Тоифа"];
+ const rows=store.map(r=>[r.fio,r.bd,r.adr,r.ev,r.dt,...r.b,...r.l,r.sb,r.sl,r.t,catOf(r.t).n]);
+ const txt=[head,...rows].map(a=>a.map(q).join(";")).join("\n");
+ try{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob(["﻿"+txt],{type:"text/csv;charset=utf-8"}));a.download="bartel-lauton.csv";document.body.appendChild(a);a.click();a.remove()}catch(e){}
+ try{await navigator.clipboard.writeText(txt);toast("Файл юкланди ва нусха олинди")}catch(e){toast("Файл юкланди")}
+});
+clearForm();list();
+}
+</script>
+</body>
+</html>
