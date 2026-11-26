@@ -33,7 +33,18 @@ h2{font-size:22px;margin:8px 0 4px}
 .q .n{font-family:Manrope,sans-serif;font-weight:600;color:var(--mut)}
 .q .t{font-weight:600;font-size:15px;margin-bottom:4px}
 .q .p{font-family:Manrope,sans-serif;font-weight:700;font-size:20px;text-align:right;white-space:nowrap}
-.q.empty select{border-color:var(--acc)}
+.q .hid{display:none}
+.pick{width:100%;display:flex;align-items:flex-start;gap:8px;justify-content:space-between;text-align:left;font:400 15px/1.4 Inter,sans-serif;padding:10px 12px;min-height:44px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.pick span{white-space:normal}
+.pick i{font-style:normal;color:var(--mut);flex:none}
+.q.empty .pick{border-color:var(--acc)}
+.menu{margin-top:6px;border:1px solid var(--line);border-radius:10px;background:var(--card);box-shadow:0 8px 24px rgba(0,0,0,.12);overflow:hidden}
+.opt{display:grid;grid-template-columns:2.6em minmax(0,1fr);gap:8px;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);border-radius:0;background:none;color:var(--ink);font:400 14px/1.45 Inter,sans-serif;padding:10px 12px;min-height:44px;cursor:pointer}
+.opt:last-child{border-bottom:0}
+.opt b{font-family:Manrope,sans-serif;font-size:16px}
+.opt:hover,.opt:focus-visible{background:var(--sky2)}
+.opt[aria-selected=true]{background:var(--sky2);box-shadow:inset 3px 0 0 var(--acc)}
+
 .q .crit{font-size:13px;color:var(--mut);margin-top:6px;line-height:1.45}
 .q .crit b{color:var(--ink);font-weight:600}
 .q .crit:empty{display:none}
@@ -179,8 +190,21 @@ const $=id=>document.getElementById(id);
 const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const fmt=x=>String(Math.round(x*10)/10).replace(".",",");
 function render(set,host,pre){
- host.innerHTML=set.map((it,i)=>`<div class="q empty" id="w${pre}${i}"><div class="n">${i+1}.</div><div><div class="t">${esc(it[0])}</div><select id="${pre}${i}" aria-label="${esc(it[0])}"><option value="">— баҳолаш мезонини танланг —</option>${it[1].map(o=>`<option value="${o[0]}">${fmt(o[0])} — ${esc(o[1])}</option>`).join("")}</select><div class="crit" id="c${pre}${i}"></div></div><div class="p num" id="p${pre}${i}">–</div></div>`).join("");
+ host.innerHTML=set.map((it,i)=>`<div class="q empty" id="w${pre}${i}"><div class="n">${i+1}.</div><div><div class="t">${esc(it[0])}</div><select id="${pre}${i}" class="hid" tabindex="-1" aria-hidden="true"><option value=""></option>${it[1].map(o=>`<option value="${o[0]}">${fmt(o[0])}</option>`).join("")}</select><button type="button" class="pick" data-pick="${pre}${i}" aria-expanded="false" aria-controls="m${pre}${i}"><span id="s${pre}${i}">— баҳолаш мезонини танланг —</span><i aria-hidden="true">▾</i></button><div class="menu" id="m${pre}${i}" role="listbox" hidden>${it[1].map(o=>`<button type="button" role="option" class="opt" data-for="${pre}${i}" data-v="${o[0]}"><b>${fmt(o[0])}</b><span>${esc(o[1])}</span></button>`).join("")}</div><div class="crit" id="c${pre}${i}"></div></div><div class="p num" id="p${pre}${i}">–</div></div>`).join("");
 }
+function closeMenus(except){document.querySelectorAll(".menu:not([hidden])").forEach(m=>{if(m!==except){m.hidden=true;document.querySelector(`[data-pick="${m.id.slice(1)}"]`)?.setAttribute("aria-expanded","false")}})}
+document.addEventListener("click",e=>{
+ const pk=e.target.closest("[data-pick]");
+ if(pk){const m=$("m"+pk.dataset.pick);const open=m.hidden;closeMenus(m);m.hidden=!open;pk.setAttribute("aria-expanded",String(open));if(open){const cur=$(pk.dataset.pick).value;const sel=[...m.children].find(b=>b.dataset.v===cur)||m.firstElementChild;sel&&sel.focus()}return}
+ const op=e.target.closest(".opt");
+ if(op){const sel=$(op.dataset.for);sel.value=op.dataset.v;$("m"+op.dataset.for).hidden=true;const btn=document.querySelector(`[data-pick="${op.dataset.for}"]`);btn.setAttribute("aria-expanded","false");btn.focus();calc();return}
+ if(!e.target.closest(".menu"))closeMenus(null);
+});
+document.addEventListener("keydown",e=>{
+ if(e.key==="Escape"){const m=document.querySelector(".menu:not([hidden])");if(m){closeMenus(null);document.querySelector(`[data-pick="${m.id.slice(1)}"]`)?.focus()}}
+ const op=e.target.closest&&e.target.closest(".opt");
+ if(op&&(e.key==="ArrowDown"||e.key==="ArrowUp")){e.preventDefault();const n=e.key==="ArrowDown"?op.nextElementSibling:op.previousElementSibling;n&&n.focus()}
+});
 render(B,$("qb"),"b");render(L,$("ql"),"l");
 // gauge: 0..127
 const G=$("gauge"),bounds=[[0,53],[54,62],[63,87],[88,115],[116,127]];
@@ -191,7 +215,7 @@ function vals(){
  const b=B.map((_,i)=>$("b"+i).value),l=L.map((_,i)=>$("l"+i).value);
  return{b,l};
 }
-function setCrit(set,pre,i,v){const o=v===""?null:set[i][1].find(o=>String(o[0])===String(v));$("c"+pre+i).innerHTML=o?`${esc(o[1])}${o[2]&&o[2]!=="-"?`<br><b>Таклиф этиладиган хизмат:</b> ${esc(o[2])}`:""}`:""}
+function setCrit(set,pre,i,v){const o=v===""?null:set[i][1].find(o=>String(o[0])===String(v));$("s"+pre+i).textContent=o?`${fmt(o[0])} — ${o[1]}`:"— баҳолаш мезонини танланг —";document.querySelectorAll(`#m${pre}${i} .opt`).forEach(b=>b.setAttribute("aria-selected",String(!!o&&b.dataset.v===String(o[0]))));$("c"+pre+i).innerHTML=o&&o[2]&&o[2]!=="-"?`<b>Таклиф этиладиган хизмат:</b> ${esc(o[2])}`:""}
 function calc(){
  const {b,l}=vals();
  let sb=0,sl=0,miss=0;
@@ -254,8 +278,7 @@ function report(r){
  <h4>4.1. Элементар ҳаракатларни амалга ошириш имкониятини баҳолаш (Бартел шкаласи бўйича)</h4><table>${head}${rows(B,r.b)}<tr><td></td><td colspan="2"><b>Баллар суммаси:</b></td><td style="text-align:center"><b>${fmt(r.sb)}</b></td></tr></table>`;
  const p2=`<h4>4.2. Мураккаб ҳаракатларни амалга ошириш имкониятини баҳолаш (Лаутон шкаласи бўйича)</h4><table>${head}${rows(L,r.l)}<tr><td></td><td colspan="2"><b>Баллар суммаси:</b></td><td style="text-align:center"><b>${fmt(r.sl)}</b></td></tr></table>
  <div class="tot"><div>Бартел шкаласи<b>${fmt(r.sb)} / 100</b></div><div>Лаутон шкаласи<b>${fmt(r.sl)} / 27</b></div><div>Жами балл<b>${fmt(r.t)} / 127</b></div></div>
- <table><tr><td style="width:170px">Тоифа</td><td><b>${esc(c.n)}</b> (${c.min}${c.min===116?" балл ва ундан ортиқ":"–"+(CAT[CAT.indexOf(c)-1].min-1)+" балл"})</td></tr>
- <tr><td>Ижтимоий ходимнинг бориб кўриши</td><td>${c.d?`ҳафтада ${c.d} кун, ${fmt(c.h)} соатдан`:"талаб этилмайди"}</td></tr></table>
+ <table><tr><td style="width:170px">Тоифа</td><td><b>${esc(c.n)}</b> (${c.min}${c.min===116?" балл ва ундан ортиқ":"–"+(CAT[CAT.indexOf(c)-1].min-1)+" балл"})</td></tr></table>
  <div class="sig"><div>«Инсон» маркази ходими: ____________________ ${esc(r.ev)}</div><div>Баҳоланувчи (ёки вакили): ____________________</div></div>`;
  return [p1,p2];
 }
