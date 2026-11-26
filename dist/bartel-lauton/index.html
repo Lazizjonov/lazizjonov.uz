@@ -244,15 +244,15 @@ const optTxt=(set,i,v)=>optOf(set,i,v)[1];
 const fdate=d=>d?d.split("-").reverse().join("."):"";
 function report(r){
  const c=catOf(r.t);
- const rows=(set,vals)=>set.map((it,i)=>{const o=optOf(set,i,vals[i]);return `<tr><td style="text-align:center">${i+1}.</td><td>${esc(it[0])}</td><td>${esc(o[1])}</td><td style="text-align:center"><b>${fmt(+vals[i])}</b></td><td>${esc(o[2]||"-")}</td></tr>`}).join("");
- const head=`<tr><th style="width:30px">Т/р</th><th style="width:130px">Ҳаракатларнинг номи</th><th>Баҳолаш мезонлари</th><th style="width:44px">Баллар</th><th style="width:150px">Таклиф этиладиган хизмат</th></tr>`;
+ const rows=(set,vals)=>set.map((it,i)=>{const o=optOf(set,i,vals[i]);return `<tr><td style="text-align:center">${i+1}.</td><td>${esc(it[0])}</td><td>${esc(o[1])}</td><td style="text-align:center"><b>${fmt(+vals[i])}</b></td></tr>`}).join("");
+ const head=`<tr><th style="width:30px">Т/р</th><th style="width:160px">Ҳаракатларнинг номи</th><th>Баҳолаш мезонлари</th><th style="width:50px">Баллар</th></tr>`;
  const p1=`<h3>Ўзгаларнинг парваришига муҳтожликни баҳолаш</h3>
  <p class="c">Вазирлар Маҳкамасининг 2024 йил 11 мартдаги 123-сон қарори, 4-бўлим</p>
  <table><tr><td style="width:170px">Баҳоланувчи Ф.И.Ш.</td><td><b>${esc(r.fio)}</b></td></tr>
  <tr><td>Туғилган сана</td><td>${esc(fdate(r.bd))}</td></tr><tr><td>Манзил / маҳалла</td><td>${esc(r.adr)}</td></tr>
  <tr><td>«Инсон» ижтимоий хизматлар маркази ходими Ф.И.О</td><td>${esc(r.ev)}</td></tr><tr><td>Баҳолаш санаси</td><td>${esc(fdate(r.dt))}</td></tr></table>
- <h4>4.1. Элементар ҳаракатларни амалга ошириш имкониятини баҳолаш (Бартел шкаласи бўйича)</h4><table>${head}${rows(B,r.b)}<tr><td></td><td colspan="2"><b>Баллар суммаси:</b></td><td style="text-align:center"><b>${fmt(r.sb)}</b></td><td></td></tr></table>`;
- const p2=`<h4>4.2. Мураккаб ҳаракатларни амалга ошириш имкониятини баҳолаш (Лаутон шкаласи бўйича)</h4><table>${head}${rows(L,r.l)}<tr><td></td><td colspan="2"><b>Баллар суммаси:</b></td><td style="text-align:center"><b>${fmt(r.sl)}</b></td><td></td></tr></table>
+ <h4>4.1. Элементар ҳаракатларни амалга ошириш имкониятини баҳолаш (Бартел шкаласи бўйича)</h4><table>${head}${rows(B,r.b)}<tr><td></td><td colspan="2"><b>Баллар суммаси:</b></td><td style="text-align:center"><b>${fmt(r.sb)}</b></td></tr></table>`;
+ const p2=`<h4>4.2. Мураккаб ҳаракатларни амалга ошириш имкониятини баҳолаш (Лаутон шкаласи бўйича)</h4><table>${head}${rows(L,r.l)}<tr><td></td><td colspan="2"><b>Баллар суммаси:</b></td><td style="text-align:center"><b>${fmt(r.sl)}</b></td></tr></table>
  <div class="tot"><div>Бартел шкаласи<b>${fmt(r.sb)} / 100</b></div><div>Лаутон шкаласи<b>${fmt(r.sl)} / 27</b></div><div>Жами балл<b>${fmt(r.t)} / 127</b></div></div>
  <table><tr><td style="width:170px">Тоифа</td><td><b>${esc(c.n)}</b> (${c.min}${c.min===116?" балл ва ундан ортиқ":"–"+(CAT[CAT.indexOf(c)-1].min-1)+" балл"})</td></tr>
  <tr><td>Ижтимоий ходимнинг бориб кўриши</td><td>${c.d?`ҳафтада ${c.d} кун, ${fmt(c.h)} соатдан`:"талаб этилмайди"}</td></tr></table>
