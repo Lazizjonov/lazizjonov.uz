@@ -254,8 +254,7 @@ function report(r){
  <h4>4.1. Элементар ҳаракатларни амалга ошириш имкониятини баҳолаш (Бартел шкаласи бўйича)</h4><table>${head}${rows(B,r.b)}<tr><td></td><td colspan="2"><b>Баллар суммаси:</b></td><td style="text-align:center"><b>${fmt(r.sb)}</b></td></tr></table>`;
  const p2=`<h4>4.2. Мураккаб ҳаракатларни амалга ошириш имкониятини баҳолаш (Лаутон шкаласи бўйича)</h4><table>${head}${rows(L,r.l)}<tr><td></td><td colspan="2"><b>Баллар суммаси:</b></td><td style="text-align:center"><b>${fmt(r.sl)}</b></td></tr></table>
  <div class="tot"><div>Бартел шкаласи<b>${fmt(r.sb)} / 100</b></div><div>Лаутон шкаласи<b>${fmt(r.sl)} / 27</b></div><div>Жами балл<b>${fmt(r.t)} / 127</b></div></div>
- <table><tr><td style="width:170px">Тоифа</td><td><b>${esc(c.n)}</b> (${c.min}${c.min===116?" балл ва ундан ортиқ":"–"+(CAT[CAT.indexOf(c)-1].min-1)+" балл"})</td></tr>
- <tr><td>Ижтимоий ходимнинг бориб кўриши</td><td>${c.d?`ҳафтада ${c.d} кун, ${fmt(c.h)} соатдан`:"талаб этилмайди"}</td></tr></table>
+ <table><tr><td style="width:170px">Тоифа</td><td><b>${esc(c.n)}</b> (${c.min}${c.min===116?" балл ва ундан ортиқ":"–"+(CAT[CAT.indexOf(c)-1].min-1)+" балл"})</td></tr></table>
  <div class="sig"><div>«Инсон» маркази ходими: ____________________ ${esc(r.ev)}</div><div>Баҳоланувчи (ёки вакили): ____________________</div></div>`;
  return [p1,p2];
 }
